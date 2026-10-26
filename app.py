@@ -27,21 +27,18 @@ DATA_PATH = os.path.join(os.path.dirname(__file__), "data", "students_dataset.cs
 # Ensure database is initialized
 init_db()
 
+@app.before_request
+def require_login():
+    """Ensures login page appears first; redirects unauthenticated visitors to /login."""
+    public_endpoints = ["login", "register", "static", "api_predict", "api_stats"]
+    if request.endpoint and request.endpoint not in public_endpoints:
+        if "user" not in session:
+            return redirect(url_for("login"))
+
 @app.context_processor
 def inject_user():
     """Provides current user object to all templates."""
-    user = session.get("user")
-    if not user:
-        # Default session as Amit Yadav (Faculty Mentor)
-        user = {
-            "name": "Amit Yadav",
-            "role": "Faculty Mentor",
-            "department": "Computer Science & Engineering",
-            "email": "amit@niet.co.in",
-            "student_id": "",
-            "avatar": "AY"
-        }
-    return {"current_user": user}
+    return {"current_user": session.get("user", {})}
 
 def get_dataset():
     """Loads current student dataset from CSV."""
