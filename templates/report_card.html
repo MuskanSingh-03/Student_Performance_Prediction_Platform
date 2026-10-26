@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Academic Audit Report — {{ student['name'] }} ({{ student['student_id'] }})</title>
+  
+  <!-- Bootstrap 5.3 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  
+  <style>
+    body {
+      background-color: #f1f5f9;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      color: #0f172a;
+      padding: 2rem 1rem;
+    }
+    .report-sheet {
+      max-width: 860px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 3rem;
+      border-radius: 0.75rem;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+      border: 1px solid #e2e8f0;
+      position: relative;
+    }
+    @media print {
+      body {
+        background: #ffffff;
+        padding: 0;
+      }
+      .report-sheet {
+        box-shadow: none;
+        border: none;
+        padding: 1.5rem;
+        max-width: 100%;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+    .institution-header {
+      border-bottom: 3px double #cbd5e1;
+      padding-bottom: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    .stat-badge {
+      font-size: 1.15rem;
+      font-weight: 700;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      display: inline-block;
+    }
+    .badge-danger-soft {
+      background: #fef2f2;
+      color: #dc2626;
+      border: 1px solid #fecaca;
+    }
+    .badge-warning-soft {
+      background: #fffbeb;
+      color: #d97706;
+      border: 1px solid #fde68a;
+    }
+    .badge-success-soft {
+      background: #f0fdf4;
+      color: #16a34a;
+      border: 1px solid #bbf7d0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Controls Bar -->
+  <div class="max-width-860 mx-auto mb-3 d-flex justify-content-between align-items-center no-print" style="max-width: 860px;">
+    <a href="{{ url_for('students') }}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-arrow-left me-1"></i> Back to Student Directory
+    </a>
+    <div class="d-flex gap-2">
+      <button onclick="window.print()" class="btn btn-primary btn-sm shadow-sm">
+        <i class="bi bi-printer-fill me-1"></i> Print / Save as PDF
+      </button>
+    </div>
+  </div>
+
+  <div class="report-sheet">
+    
+    <!-- Institution Header -->
+    <div class="institution-header d-flex justify-content-between align-items-center">
+      <div class="d-flex align-items-center gap-3">
+        <div class="bg-danger text-white rounded p-2 d-flex align-items-center justify-content-center" style="width: 54px; height: 54px;">
+          <i class="bi bi-mortarboard-fill fs-2"></i>
+        </div>
+        <div>
+          <h4 class="fw-bold m-0 text-dark">NOIDA INSTITUTE OF ENGINEERING & TECHNOLOGY</h4>
+          <small class="text-muted fw-semibold text-uppercase d-block" style="letter-spacing: 0.05em;">
+            Greater Noida • An Autonomous Institute • Accredited Grade 'A'
+          </small>
+          <small class="text-primary fw-bold" style="font-size: 0.8rem;">
+            Department of Computer Science & Engineering | Academic Performance Audit
+          </small>
+        </div>
+      </div>
+      <div class="text-end">
+        <span class="badge bg-danger mb-1">SDG 4</span>
+        <div class="small text-muted font-monospace">REF: EDU/AUDIT/2026</div>
+      </div>
+    </div>
+
+    <!-- Report Title -->
+    <div class="text-center mb-4">
+      <h5 class="fw-bold text-uppercase text-decoration-underline text-dark mb-1">
+        Continuous Evaluation & AI Early Warning Academic Audit
+      </h5>
+      <small class="text-muted">Proactive Student Performance Prediction & Mentor Intervention Record</small>
+    </div>
+
+    <!-- Student Metadata Grid -->
+    <div class="row g-2 mb-4 bg-light p-3 rounded border">
+      <div class="col-6 col-md-3">
+        <small class="text-muted d-block">Student Name:</small>
+        <strong class="text-dark">{{ student['name'] }}</strong>
+      </div>
+      <div class="col-6 col-md-3">
+        <small class="text-muted d-block">Student ID / Roll No:</small>
+        <strong class="font-monospace text-primary">{{ student['student_id'] }}</strong>
+      </div>
+      <div class="col-6 col-md-3">
+        <small class="text-muted d-block">Program & Section:</small>
+        <strong>B.Tech CSE-D</strong>
+      </div>
+      <div class="col-6 col-md-3">
+        <small class="text-muted d-block">Assigned Faculty Mentor:</small>
+        <strong>Amit Yadav</strong>
+      </div>
+    </div>
+
+    <!-- Continuous Assessment Metrics Table -->
+    <h6 class="fw-bold text-dark border-bottom pb-2 mb-3">
+      <i class="bi bi-table text-primary me-1"></i> 1. Continuous Evaluation Indicators
+    </h6>
+    <table class="table table-bordered mb-4 text-center align-middle small">
+      <thead class="table-light">
+        <tr>
+          <th>Indicator</th>
+          <th>Observed Score</th>
+          <th>Standard Benchmark</th>
+          <th>Compliance Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="text-start fw-semibold">Lecture & Lab Attendance</td>
+          <td class="fw-bold {% if student['attendance'] < 65 %}text-danger{% elif student['attendance'] < 75 %}text-warning{% else %}text-success{% endif %}">
+            {{ student['attendance'] }}%
+          </td>
+          <td>&ge; 75.0% Mandatory</td>
+          <td>
+            {% if student['attendance'] < 65 %}
+              <span class="badge bg-danger">Critical Detention Risk</span>
+            {% elif student['attendance'] < 75 %}
+              <span class="badge bg-warning text-dark">Warning</span>
+            {% else %}
+              <span class="badge bg-success">Compliant</span>
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <td class="text-start fw-semibold">Sessional Internal Marks</td>
+          <td class="fw-bold">{{ student['internal_marks'] }} / 50</td>
+          <td>&ge; 25.0 / 50</td>
+          <td>
+            {% if student['internal_marks'] < 25 %}
+              <span class="badge bg-danger">Deficit (< 50%)</span>
+            {% else %}
+              <span class="badge bg-success">Passed</span>
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <td class="text-start fw-semibold">Periodic Class Tests & Quizzes</td>
+          <td>{{ student['class_test_marks'] }} / 30</td>
+          <td>&ge; 15.0 / 30</td>
+          <td>
+            {% if student['class_test_marks'] < 15 %}
+              <span class="badge bg-warning text-dark">Needs Attention</span>
+            {% else %}
+              <span class="badge bg-success">Satisfactory</span>
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <td class="text-start fw-semibold">Coursework Assignment Submission</td>
+          <td>{{ student['assignment_rate'] }}%</td>
+          <td>&ge; 70.0%</td>
+          <td>
+            {% if student['assignment_rate'] < 70 %}
+              <span class="badge bg-warning text-dark">Incomplete</span>
+            {% else %}
+              <span class="badge bg-success">On-Time</span>
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <td class="text-start fw-semibold">Weekly Self-Study Allocation</td>
+          <td>{{ student['study_hours'] }} hrs/week</td>
+          <td>&ge; 10.0 hrs/week</td>
+          <td>
+            {% if student['study_hours'] < 8 %}
+              <span class="badge bg-secondary">Low Effort</span>
+            {% else %}
+              <span class="badge bg-success">Adequate</span>
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <td class="text-start fw-semibold">Historical Cumulative GPA</td>
+          <td class="fw-bold">{{ student['past_gpa'] }} / 10.0</td>
+          <td>&ge; 6.00 / 10.0</td>
+          <td>
+            {% if student['past_gpa'] < 6.0 %}
+              <span class="badge bg-danger">Academic Probation</span>
+            {% else %}
+              <span class="badge bg-success">Good Standing</span>
+            {% endif %}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- AI Diagnostic Classification Verdict -->
+    <h6 class="fw-bold text-dark border-bottom pb-2 mb-3">
+      <i class="bi bi-cpu text-primary me-1"></i> 2. Machine Learning Diagnostic Verdict
+    </h6>
+    <div class="row g-3 mb-4">
+      <div class="col-md-6">
+        <div class="p-3 border rounded text-center h-100">
+          <small class="text-muted d-block text-uppercase fw-bold">Primary Risk Classification</small>
+          <div class="my-2">
+            {% if student['risk_level'] == 'High Risk' %}
+              <span class="stat-badge badge-danger-soft"><i class="bi bi-exclamation-octagon-fill"></i> HIGH RISK (AT-RISK)</span>
+            {% elif student['risk_level'] == 'Medium Risk' %}
+              <span class="stat-badge badge-warning-soft"><i class="bi bi-dash-circle-fill"></i> MEDIUM RISK (BORDERLINE)</span>
+            {% else %}
+              <span class="stat-badge badge-success-soft"><i class="bi bi-check-circle-fill"></i> LOW RISK (SAFE)</span>
+            {% endif %}
+          </div>
+          <small class="text-muted d-block">
+            Model: <strong>Random Forest Ensemble (Module 3)</strong> | Confidence: <strong>{{ pred.get('confidence', 95.0) }}%</strong>
+          </small>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="p-3 border rounded h-100">
+          <small class="text-muted d-block text-uppercase fw-bold mb-2">Cohort Analytics Mapping</small>
+          <ul class="list-unstyled small mb-0">
+            <li class="mb-1"><strong>Projected SGPA:</strong> <span class="text-primary fw-bold">{{ pred.get('projected_gpa', 7.5) }} / 10.0</span></li>
+            <li class="mb-1"><strong>K-Means Peer Segment:</strong> {{ student.get('cluster_label', 'High Performers') }}</li>
+            <li><strong>Neural Net (MLP) Consensus:</strong> {{ pred['all_model_predictions'].get('MLP Neural Network', student['risk_level']) }}</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Early Warning Triggers -->
+    {% if pred.get('early_warnings') %}
+    <h6 class="fw-bold text-danger border-bottom pb-2 mb-3">
+      <i class="bi bi-bell-fill text-danger me-1"></i> 3. Active Early Warning Diagnostic Triggers
+    </h6>
+    <div class="mb-4">
+      {% for w in pred['early_warnings'] %}
+      <div class="p-2 mb-2 rounded bg-light border-start border-4 {% if w['type'] == 'critical' %}border-danger{% else %}border-warning{% endif %} small">
+        <strong>{{ w['title'] }}:</strong> {{ w['detail'] }}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Prescribed Mentor Intervention Plan -->
+    <h6 class="fw-bold text-dark border-bottom pb-2 mb-3">
+      <i class="bi bi-shield-shaded text-primary me-1"></i> 4. Prescribed Faculty Mentor Action Plan
+    </h6>
+    <div class="p-3 bg-light rounded border mb-4">
+      <div class="fw-bold small text-primary mb-2">{{ pred['intervention']['tier'] }}</div>
+      <ul class="small mb-0 ps-3">
+        {% for act in pred['intervention']['actions'] %}
+        <li class="mb-1">{{ act }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <!-- Formal Signatures Box -->
+    <div class="row pt-4 mt-4 border-top">
+      <div class="col-6 text-center">
+        <div class="mb-4" style="height: 35px;"></div>
+        <div class="border-top pt-1 small fw-bold text-dark">Signature of Student</div>
+        <small class="text-muted">{{ student['name'] }}</small>
+      </div>
+      <div class="col-6 text-center">
+        <div class="mb-4" style="height: 35px;">
+          <span class="text-primary font-monospace fw-bold" style="font-size: 0.9rem;">[Digitally Verified - AI System]</span>
+        </div>
+        <div class="border-top pt-1 small fw-bold text-dark">Signature of Faculty Mentor</div>
+        <small class="text-muted">Mr. Amit Yadav (Dept of CSE)</small>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

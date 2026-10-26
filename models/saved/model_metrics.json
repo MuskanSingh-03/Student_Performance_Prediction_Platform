@@ -1,0 +1,146 @@
+{
+    "smote_improvement": {
+        "at_risk_recall_before": 94.12,
+        "at_risk_recall_after": 100.0
+    },
+    "models": {
+        "Logistic Regression": {
+            "accuracy": 91.0,
+            "precision": 91.86,
+            "recall": 91.0,
+            "f1_score": 91.18,
+            "high_risk_recall": 88.24,
+            "cv_mean_accuracy": 94.81,
+            "cv_std": 2.02,
+            "confusion_matrix": [
+                [
+                    15,
+                    2,
+                    0
+                ],
+                [
+                    1,
+                    28,
+                    1
+                ],
+                [
+                    0,
+                    5,
+                    48
+                ]
+            ]
+        },
+        "Decision Tree": {
+            "accuracy": 94.0,
+            "precision": 94.17,
+            "recall": 94.0,
+            "f1_score": 94.04,
+            "high_risk_recall": 100.0,
+            "cv_mean_accuracy": 94.19,
+            "cv_std": 2.08,
+            "confusion_matrix": [
+                [
+                    17,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    28,
+                    2
+                ],
+                [
+                    0,
+                    4,
+                    49
+                ]
+            ]
+        },
+        "Random Forest": {
+            "accuracy": 95.0,
+            "precision": 95.06,
+            "recall": 95.0,
+            "f1_score": 95.02,
+            "high_risk_recall": 100.0,
+            "cv_mean_accuracy": 97.65,
+            "cv_std": 1.56,
+            "confusion_matrix": [
+                [
+                    17,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    28,
+                    2
+                ],
+                [
+                    0,
+                    3,
+                    50
+                ]
+            ]
+        },
+        "MLP Neural Network": {
+            "accuracy": 81.0,
+            "precision": 83.26,
+            "recall": 81.0,
+            "f1_score": 81.59,
+            "high_risk_recall": 88.24,
+            "cv_mean_accuracy": 88.37,
+            "cv_std": 2.3,
+            "confusion_matrix": [
+                [
+                    15,
+                    2,
+                    0
+                ],
+                [
+                    8,
+                    21,
+                    1
+                ],
+                [
+                    0,
+                    8,
+                    45
+                ]
+            ]
+        }
+    },
+    "feature_importance": {
+        "internal_marks": 42.1,
+        "attendance": 27.58,
+        "past_gpa": 9.9,
+        "class_test_marks": 8.57,
+        "assignment_rate": 6.65,
+        "study_hours": 4.22,
+        "extracurricular": 0.53,
+        "parental_education": 0.37,
+        "internet_access": 0.07
+    },
+    "clusters": {
+        "High Performers (Consistent)": {
+            "count": 241,
+            "avg_attendance": 78.6,
+            "avg_internal_marks": 35.9,
+            "avg_past_gpa": 8.07,
+            "avg_study_hours": 17.6
+        },
+        "Moderate Performers (Developing)": {
+            "count": 38,
+            "avg_attendance": 69.6,
+            "avg_internal_marks": 30.4,
+            "avg_past_gpa": 7.42,
+            "avg_study_hours": 15.7
+        },
+        "At-Risk / Low Performers": {
+            "count": 221,
+            "avg_attendance": 55.6,
+            "avg_internal_marks": 24.4,
+            "avg_past_gpa": 6.6,
+            "avg_study_hours": 12.2
+        }
+    }
+}

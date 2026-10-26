@@ -1,0 +1,278 @@
+{% extends "base.html" %}
+
+{% block page_title %}Student Cohort Directory (500 Enrolled){% endblock %}
+
+{% block content %}
+<div class="custom-card mb-4">
+  <div class="custom-card-body">
+    <!-- Filter and Search Toolbar -->
+    <form method="GET" action="{{ url_for('students') }}" class="row g-3 align-items-center">
+      <div class="col-12 col-md-4">
+        <div class="input-group">
+          <span class="input-group-text bg-white"><i class="bi bi-search text-muted"></i></span>
+          <input type="text" name="q" class="form-control" placeholder="Search by name or student ID..." value="{{ search_query }}">
+        </div>
+      </div>
+
+      <div class="col-6 col-md-3">
+        <select name="risk" class="form-select" onchange="this.form.submit()">
+          <option value="All" {% if current_risk == 'All' %}selected{% endif %}>All Risk Levels</option>
+          <option value="High Risk" {% if current_risk == 'High Risk' %}selected{% endif %}>High Risk Only</option>
+          <option value="Medium Risk" {% if current_risk == 'Medium Risk' %}selected{% endif %}>Medium Risk Only</option>
+          <option value="Low Risk" {% if current_risk == 'Low Risk' %}selected{% endif %}>Low Risk Only</option>
+        </select>
+      </div>
+
+      <div class="col-6 col-md-3">
+        <select name="cluster" class="form-select" onchange="this.form.submit()">
+          <option value="All" {% if current_cluster == 'All' %}selected{% endif %}>All K-Means Clusters</option>
+          <option value="High Performers" {% if current_cluster == 'High Performers' %}selected{% endif %}>High Performers</option>
+          <option value="Moderate" {% if current_cluster == 'Moderate' %}selected{% endif %}>Moderate Performers</option>
+          <option value="At-Risk" {% if current_cluster == 'At-Risk' %}selected{% endif %}>At-Risk Segment</option>
+        </select>
+      </div>
+
+      <div class="col-12 col-md-2 d-flex gap-2">
+        <button type="submit" class="btn btn-primary w-100"><i class="bi bi-funnel"></i> Filter</button>
+        {% if search_query or current_risk != 'All' or current_cluster != 'All' %}
+          <a href="{{ url_for('students') }}" class="btn btn-outline-secondary" title="Reset Filters"><i class="bi bi-x-circle"></i></a>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Table Card -->
+<div class="custom-card">
+  <div class="custom-card-header">
+    <div class="d-flex align-items-center gap-2">
+      <h6 class="custom-card-title"><i class="bi bi-table"></i> Student Academic Records</h6>
+      <span class="badge bg-primary">{{ total_count }} Records Found</span>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="{{ url_for('download_evaluated_cohort') }}" class="btn btn-outline-primary btn-sm">
+        <i class="bi bi-file-earmark-spreadsheet-fill me-1"></i> Export Evaluated Cohort (.csv)
+      </a>
+      <a href="{{ url_for('download_sample_template') }}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-download me-1"></i> Template
+      </a>
+    </div>
+  </div>
+  <div class="custom-card-body p-0">
+    <div class="table-responsive">
+      <table class="table custom-table mb-0">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Student Name</th>
+            <th>Attendance</th>
+            <th>Internal (50)</th>
+            <th>Assignments</th>
+            <th>Study Hrs</th>
+            <th>Past GPA</th>
+            <th>Risk Level</th>
+            <th>Cluster Group</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in students %}
+          <tr>
+            <td class="fw-bold text-primary">{{ s['student_id'] }}</td>
+            <td class="fw-semibold">{{ s['name'] }}</td>
+            <td>
+              <span class="badge {% if s['attendance'] < 65 %}bg-danger{% elif s['attendance'] < 75 %}bg-warning text-dark{% else %}bg-success{% endif %}">
+                {{ s['attendance'] }}%
+              </span>
+            </td>
+            <td>{{ s['internal_marks'] }}</td>
+            <td>{{ s['assignment_rate'] }}%</td>
+            <td>{{ s['study_hours'] }} h/w</td>
+            <td><strong>{{ s['past_gpa'] }}</strong></td>
+            <td>
+              {% if s['risk_level'] == 'High Risk' %}
+                <span class="badge-risk-high"><i class="bi bi-exclamation-triangle"></i> High</span>
+              {% elif s['risk_level'] == 'Medium Risk' %}
+                <span class="badge-risk-med"><i class="bi bi-dash-circle"></i> Medium</span>
+              {% else %}
+                <span class="badge-risk-low"><i class="bi bi-check-circle"></i> Low</span>
+              {% endif %}
+            </td>
+            <td>
+              <small class="text-muted">{{ s['cluster_label'].split('(')[0] }}</small>
+            </td>
+            <td>
+              <div class="btn-group btn-group-sm">
+                <button type="button" class="btn btn-outline-secondary" 
+                        onclick='showStudentModal({{ s | tojson }})' title="View Profile">
+                  <i class="bi bi-eye"></i>
+                </button>
+                <a href="{{ url_for('predict') }}?id={{ s['student_id'] }}&att={{ s['attendance'] }}&int={{ s['internal_marks'] }}&gpa={{ s['past_gpa'] }}&study={{ s['study_hours'] }}&assig={{ s['assignment_rate'] }}&test={{ s['class_test_marks'] }}&edu={{ s['parental_education'] }}&extra={{ s['extracurricular'] }}&net={{ s['internet_access'] }}" 
+                   class="btn btn-outline-primary" title="Run AI Prediction">
+                  <i class="bi bi-cpu"></i>
+                </a>
+                <a href="{{ url_for('report_card', student_id=s['student_id']) }}" 
+                   class="btn btn-outline-dark" title="Print Official Audit Report">
+                  <i class="bi bi-printer"></i>
+                </a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Student Detail Modal -->
+<div class="modal fade" id="studentDetailModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="modalStudentName">Student Profile</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="modalStudentBody">
+        <!-- Injected via JavaScript -->
+      </div>
+      <div class="modal-footer bg-light d-flex justify-content-between">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+        <div class="d-flex gap-2">
+          <a id="modalAuditBtn" href="#" class="btn btn-outline-dark btn-sm">
+            <i class="bi bi-printer"></i> Printable Audit
+          </a>
+          <button type="button" class="btn btn-warning btn-sm text-dark" onclick="openInterventionModalFromDetail()">
+            <i class="bi bi-shield-plus"></i> Log Intervention
+          </button>
+          <a id="modalPredictBtn" href="#" class="btn btn-primary btn-sm"><i class="bi bi-cpu"></i> Full AI Diagnosis</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Intervention Log Modal -->
+<div class="modal fade" id="logInterventionModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title"><i class="bi bi-shield-plus me-1"></i> Log Faculty Mentor Intervention</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="POST" action="{{ url_for('add_intervention') }}">
+        <div class="modal-body">
+          <input type="hidden" name="student_id" id="intervStudentId">
+          <input type="hidden" name="student_name" id="intervStudentName">
+
+          <div class="p-2 mb-3 bg-light rounded border">
+            <span class="text-muted small">Student Target:</span>
+            <strong id="intervStudentDisplay" class="text-dark d-block"></strong>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Intervention Action Protocol</label>
+            <select name="action_type" class="form-select">
+              <option value="1-on-1 Counseling Session">1-on-1 Faculty Counseling Session</option>
+              <option value="Remedial / Tutorial Class Enrolled">Mandatory Remedial / Tutorial Class Enrolled</option>
+              <option value="Assigned Peer Buddy / Study Circle">Assigned Departmental Peer Buddy</option>
+              <option value="Parent Contacted Regarding Attendance">Parent / Guardian Formally Notified</option>
+              <option value="Extended Assignment Milestone">Structured Assignment Catch-up Milestone</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Session Remarks / Action Notes</label>
+            <textarea name="notes" class="form-control" rows="3" placeholder="Enter counseling notes or agreed milestones..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer bg-light">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-warning btn-sm text-dark fw-bold">
+            <i class="bi bi-check2-circle me-1"></i> Save to Database
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  let activeStudent = null;
+
+  function showStudentModal(student) {
+    activeStudent = student;
+    document.getElementById('modalStudentName').textContent = `${student.name} (${student.student_id})`;
+    
+    let riskBadge = '';
+    if (student.risk_level === 'High Risk') {
+      riskBadge = '<span class="badge bg-danger">High Risk</span>';
+    } else if (student.risk_level === 'Medium Risk') {
+      riskBadge = '<span class="badge bg-warning text-dark">Medium Risk</span>';
+    } else {
+      riskBadge = '<span class="badge bg-success">Low Risk</span>';
+    }
+
+    const html = `
+      <div class="mb-3 d-flex justify-content-between align-items-center">
+        <div>
+          <span class="text-muted small">Academic Tier:</span>
+          <strong>${student.final_grade || 'Projected'}</strong>
+        </div>
+        <div>${riskBadge}</div>
+      </div>
+      <div class="row g-2 mb-3">
+        <div class="col-6 bg-light p-2 rounded">
+          <small class="text-muted d-block">Attendance</small>
+          <strong>${student.attendance}%</strong>
+        </div>
+        <div class="col-6 bg-light p-2 rounded">
+          <small class="text-muted d-block">Internal Marks</small>
+          <strong>${student.internal_marks} / 50</strong>
+        </div>
+        <div class="col-6 bg-light p-2 rounded">
+          <small class="text-muted d-block">Class Test Average</small>
+          <strong>${student.class_test_marks} / 30</strong>
+        </div>
+        <div class="col-6 bg-light p-2 rounded">
+          <small class="text-muted d-block">Assignment Rate</small>
+          <strong>${student.assignment_rate}%</strong>
+        </div>
+        <div class="col-6 bg-light p-2 rounded">
+          <small class="text-muted d-block">Study Hours / Wk</small>
+          <strong>${student.study_hours} hrs</strong>
+        </div>
+        <div class="col-6 bg-light p-2 rounded">
+          <small class="text-muted d-block">Past Cumulative GPA</small>
+          <strong>${student.past_gpa} / 10.0</strong>
+        </div>
+      </div>
+      <div class="border-top pt-2 small text-muted">
+        <div>K-Means Segment: <strong>${student.cluster_label}</strong></div>
+        <div>Parental Education: <strong>${student.parental_education}</strong> | Internet: <strong>${student.internet_access ? 'Yes' : 'No'}</strong></div>
+      </div>
+    `;
+    document.getElementById('modalStudentBody').innerHTML = html;
+    
+    const predictUrl = `{{ url_for('predict') }}?att=${student.attendance}&int=${student.internal_marks}&gpa=${student.past_gpa}&study=${student.study_hours}&assig=${student.assignment_rate}&test=${student.class_test_marks}&edu=${student.parental_education}&extra=${student.extracurricular}&net=${student.internet_access}`;
+    document.getElementById('modalPredictBtn').setAttribute('href', predictUrl);
+    document.getElementById('modalAuditBtn').setAttribute('href', `/report/${student.student_id}`);
+
+    const modal = new bootstrap.Modal(document.getElementById('studentDetailModal'));
+    modal.show();
+  }
+
+  function openInterventionModalFromDetail() {
+    if (!activeStudent) return;
+    document.getElementById('intervStudentId').value = activeStudent.student_id;
+    document.getElementById('intervStudentName').value = activeStudent.name;
+    document.getElementById('intervStudentDisplay').innerText = `${activeStudent.name} (${activeStudent.student_id}) - ${activeStudent.risk_level}`;
+    
+    bootstrap.Modal.getInstance(document.getElementById('studentDetailModal')).hide();
+    const intervModal = new bootstrap.Modal(document.getElementById('logInterventionModal'));
+    intervModal.show();
+  }
+</script>
+{% endblock %}

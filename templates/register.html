@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create New Account | Student Performance Platform</title>
+  
+  <!-- Bootstrap 5.3 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <style>
+    body {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #1e3a8a 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    .register-container {
+      max-width: 850px;
+      width: 100%;
+      background: #ffffff;
+      border-radius: 1.25rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+      overflow: hidden;
+    }
+    .register-header {
+      background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+      color: #ffffff;
+      padding: 2rem 2.5rem;
+    }
+    .register-body {
+      padding: 2.5rem;
+    }
+    .role-card {
+      border: 2px solid #e2e8f0;
+      border-radius: 0.75rem;
+      padding: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+    .role-card:hover {
+      border-color: #3b82f6;
+      background: #eff6ff;
+    }
+    .role-card.active {
+      border-color: #2563eb;
+      background: #eff6ff;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="register-container">
+    <div class="register-header d-flex justify-content-between align-items-center">
+      <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <div class="bg-white text-primary rounded p-1 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+            <i class="bi bi-person-plus-fill fs-5"></i>
+          </div>
+          <h5 class="m-0 fw-bold">Create New Account</h5>
+        </div>
+        <small class="text-light opacity-80">NIET Greater Noida — Student Performance Prediction Platform</small>
+      </div>
+      <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-sm">
+        <i class="bi bi-box-arrow-in-right me-1"></i> Existing User? Sign In
+      </a>
+    </div>
+
+    <div class="register-body">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show small mb-4" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <form method="POST" action="{{ url_for('register') }}" id="registerForm">
+        
+        <!-- Role Selection -->
+        <label class="form-label small fw-bold text-muted text-uppercase mb-2">Select Your Role</label>
+        <div class="row g-3 mb-4">
+          <div class="col-6">
+            <div class="role-card active" id="cardFaculty" onclick="selectRole('Faculty Mentor')">
+              <input type="radio" name="role" id="roleFaculty" value="Faculty Mentor" checked class="d-none">
+              <i class="bi bi-person-badge-fill fs-2 text-primary d-block mb-1"></i>
+              <div class="fw-bold text-dark">Faculty Mentor</div>
+              <small class="text-muted" style="font-size: 0.75rem;">Teacher / Course Instructor</small>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="role-card" id="cardStudent" onclick="selectRole('Student')">
+              <input type="radio" name="role" id="roleStudent" value="Student" class="d-none">
+              <i class="bi bi-mortarboard-fill fs-2 text-success d-block mb-1"></i>
+              <div class="fw-bold text-dark">Student</div>
+              <small class="text-muted" style="font-size: 0.75rem;">Undergraduate Student</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Personal Details -->
+        <div class="row g-3 mb-3">
+          <div class="col-12 col-md-6">
+            <label class="form-label small fw-semibold">Full Name <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <span class="input-group-text bg-light"><i class="bi bi-person text-muted"></i></span>
+              <input type="text" name="name" class="form-control" placeholder="e.g. Dr. Rajesh Sharma or Priya Singh" required>
+            </div>
+            <div class="form-text small" style="font-size: 0.75rem;">Your full name will be displayed across your dashboard.</div>
+          </div>
+
+          <div class="col-12 col-md-6">
+            <label class="form-label small fw-semibold">Institutional Email <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <span class="input-group-text bg-light"><i class="bi bi-envelope text-muted"></i></span>
+              <input type="email" name="email" class="form-control" placeholder="name@niet.co.in" required>
+            </div>
+          </div>
+        </div>
+
+        <!-- Department and Conditional Student ID -->
+        <div class="row g-3 mb-3">
+          <div class="col-12 col-md-6">
+            <label class="form-label small fw-semibold">Department / Branch</label>
+            <select name="department" class="form-select">
+              <option value="Computer Science & Engineering">Computer Science & Engineering (CSE)</option>
+              <option value="BTech CSE-D" selected>BTech CSE-D (Section D)</option>
+              <option value="Information Technology">Information Technology (IT)</option>
+              <option value="Artificial Intelligence & ML">CSE (AI & ML)</option>
+            </select>
+          </div>
+
+          <div class="col-12 col-md-6" id="studentIdField" style="display: none;">
+            <label class="form-label small fw-semibold">Roll No. / Student ERP ID <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <span class="input-group-text bg-light"><i class="bi bi-card-heading text-muted"></i></span>
+              <input type="text" name="student_id" id="student_id_input" class="form-control" placeholder="e.g. 2501330100999">
+            </div>
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="row g-3 mb-4">
+          <div class="col-12 col-md-6">
+            <label class="form-label small fw-semibold">Password <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <span class="input-group-text bg-light"><i class="bi bi-lock text-muted"></i></span>
+              <input type="password" name="password" class="form-control" placeholder="Minimum 6 characters" required>
+            </div>
+          </div>
+
+          <div class="col-12 col-md-6">
+            <label class="form-label small fw-semibold">Confirm Password <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <span class="input-group-text bg-light"><i class="bi bi-shield-lock text-muted"></i></span>
+              <input type="password" name="confirm_password" class="form-control" placeholder="Re-enter password" required>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold shadow-sm">
+          <i class="bi bi-check-circle-fill me-1"></i> Complete Registration & Enter Platform
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    function selectRole(role) {
+      if (role === 'Faculty Mentor') {
+        document.getElementById('roleFaculty').checked = true;
+        document.getElementById('cardFaculty').classList.add('active');
+        document.getElementById('cardStudent').classList.remove('active');
+        document.getElementById('studentIdField').style.display = 'none';
+        document.getElementById('student_id_input').required = false;
+      } else {
+        document.getElementById('roleStudent').checked = true;
+        document.getElementById('cardStudent').classList.add('active');
+        document.getElementById('cardFaculty').classList.remove('active');
+        document.getElementById('studentIdField').style.display = 'block';
+        document.getElementById('student_id_input').required = true;
+      }
+    }
+  </script>
+</body>
+</html>

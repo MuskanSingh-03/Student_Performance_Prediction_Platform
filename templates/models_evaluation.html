@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block page_title %}Model Benchmarks & Technical Evaluation (Modules 3 & 4 Rubric){% endblock %}
+
+{% block content %}
+<!-- Module Banner -->
+<div class="alert alert-dark border-0 bg-dark text-white d-flex align-items-center justify-content-between p-3 mb-4 shadow-sm">
+  <div class="d-flex align-items-center gap-3">
+    <i class="bi bi-award-fill text-warning fs-2"></i>
+    <div>
+      <h6 class="fw-bold mb-1 text-white">PBL Review 2 & Rubric Coverage: Unit/Module 3 & Unit/Module 4</h6>
+      <small class="text-light opacity-75">
+        Supervised Baselines (Module 2) vs Ensemble Random Forest (Module 3) vs Multi-Layer Perceptron Deep Learning (Module 4).
+      </small>
+    </div>
+  </div>
+  <span class="badge bg-success px-3 py-2">Best Model: Random Forest</span>
+</div>
+
+<!-- SMOTE Class Imbalance Solution Showcase -->
+<div class="custom-card mb-4 border-warning">
+  <div class="custom-card-header bg-warning bg-opacity-10">
+    <h6 class="custom-card-title text-dark">
+      <i class="bi bi-shield-fill-check text-warning"></i> Challenge & Corrective Action: SMOTE Class Balancing
+    </h6>
+    <span class="badge bg-warning text-dark">Review Feedback #10 Addressed</span>
+  </div>
+  <div class="custom-card-body">
+    <div class="row align-items-center g-3">
+      <div class="col-12 col-md-8">
+        <p class="text-muted small mb-2">
+          Real-world classroom datasets have few failing students (~17% at-risk), which causes standard algorithms to suffer from high false-negative rates (failing to detect weak students early).
+        </p>
+        <p class="text-muted small mb-0">
+          <strong>Corrective Action Implemented:</strong> Applied <strong>SMOTE (Synthetic Minority Over-sampling Technique)</strong> combined with 5-fold stratified cross-validation. This generated synthetic feature combinations for at-risk cases, dramatically improving the model's ability to catch weak students before semester finals.
+        </p>
+      </div>
+      <div class="col-12 col-md-4 text-center border-start">
+        <small class="text-muted text-uppercase fw-bold d-block">At-Risk Student Recall</small>
+        <div class="d-flex justify-content-center align-items-baseline gap-2 mt-1">
+          <span class="fs-4 text-muted text-decoration-line-through">{{ metrics['smote_improvement']['at_risk_recall_before'] }}%</span>
+          <i class="bi bi-arrow-right text-success fs-5"></i>
+          <span class="fs-2 fw-bold text-success">{{ metrics['smote_improvement']['at_risk_recall_after'] }}%</span>
+        </div>
+        <small class="badge bg-success bg-opacity-10 text-success mt-1">High Sensitivity to Failure Risk</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Comparison Metric Table -->
+<div class="custom-card mb-4">
+  <div class="custom-card-header">
+    <h6 class="custom-card-title"><i class="bi bi-table text-primary"></i> Comprehensive Multi-Model Performance Matrix</h6>
+    <span class="badge bg-primary">Stratified 80:20 Split (100 Test Samples)</span>
+  </div>
+  <div class="custom-card-body p-0">
+    <div class="table-responsive">
+      <table class="table custom-table mb-0 text-center">
+        <thead>
+          <tr class="text-start">
+            <th class="text-start">Algorithm</th>
+            <th>Curriculum Unit</th>
+            <th>Accuracy</th>
+            <th>Precision</th>
+            <th>Weighted F1</th>
+            <th>At-Risk Recall</th>
+            <th>5-Fold CV Accuracy</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for name, m in metrics['models'].items() %}
+          <tr>
+            <td class="text-start fw-bold">
+              {% if name == 'Random Forest' %}
+                <span class="text-primary"><i class="bi bi-star-fill text-warning me-1"></i> {{ name }} (Selected)</span>
+              {% elif name == 'MLP Neural Network' %}
+                <span class="text-dark"><i class="bi bi-diagram-2 text-info me-1"></i> {{ name }}</span>
+              {% else %}
+                {{ name }}
+              {% endif %}
+            </td>
+            <td>
+              {% if 'MLP' in name %}
+                <span class="badge bg-info text-dark">Module 4 (Neural Net)</span>
+              {% elif 'Random' in name %}
+                <span class="badge bg-primary">Module 3 (Ensemble)</span>
+              {% else %}
+                <span class="badge bg-secondary">Module 2 (Baselines)</span>
+              {% endif %}
+            </td>
+            <td class="fw-bold">{{ m['accuracy'] }}%</td>
+            <td>{{ m['precision'] }}%</td>
+            <td><strong>{{ m['f1_score'] }}%</strong></td>
+            <td>
+              <span class="badge {% if m['high_risk_recall'] >= 90 %}bg-success{% elif m['high_risk_recall'] >= 80 %}bg-warning text-dark{% else %}bg-danger{% endif %}">
+                {{ m['high_risk_recall'] }}%
+              </span>
+            </td>
+            <td>{{ m['cv_mean_accuracy'] }}% &plusmn; {{ m['cv_std'] }}%</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Plots Row 1: Confusion Matrices & Model Comparison -->
+<div class="row g-4 mb-4">
+  <div class="col-12 col-lg-6">
+    <div class="custom-card h-100 mb-0">
+      <div class="custom-card-header">
+        <h6 class="custom-card-title"><i class="bi bi-grid-3x3-gap-fill text-primary"></i> Confusion Matrices (All Models)</h6>
+      </div>
+      <div class="custom-card-body text-center">
+        <img src="{{ url_for('static', filename='plots/confusion_matrices.png') }}" class="img-fluid rounded border shadow-sm mb-2" alt="Confusion Matrices">
+        <small class="text-muted d-block text-start">
+          Examines True vs Predicted classes (High Risk, Medium, Low Risk). Random Forest achieves zero false negatives on High Risk students.
+        </small>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-6">
+    <div class="custom-card h-100 mb-0">
+      <div class="custom-card-header">
+        <h6 class="custom-card-title"><i class="bi bi-bar-chart-fill text-success"></i> Model Metric Comparison Chart</h6>
+      </div>
+      <div class="custom-card-body text-center">
+        <img src="{{ url_for('static', filename='plots/model_comparison.png') }}" class="img-fluid rounded border shadow-sm mb-2" alt="Model Comparison Plot">
+        <small class="text-muted d-block text-start">
+          Compares Accuracy, Weighted F1, and At-Risk Recall across Logistic Regression, Decision Tree, Random Forest, and MLP Neural Network.
+        </small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Plots Row 2: Feature Importance & Module Architecture -->
+<div class="row g-4 mb-4">
+  <div class="col-12 col-lg-6">
+    <div class="custom-card h-100 mb-0">
+      <div class="custom-card-header">
+        <h6 class="custom-card-title"><i class="bi bi-bar-chart-steps text-warning"></i> Feature Importance Ranking</h6>
+      </div>
+      <div class="custom-card-body text-center">
+        <img src="{{ url_for('static', filename='plots/feature_importance.png') }}" class="img-fluid rounded border shadow-sm mb-2" alt="Feature Importance Plot">
+        <small class="text-muted d-block text-start">
+          Identifies <strong>Internal Marks, Attendance, and Past GPA</strong> as the dominant statistical indicators for performance prediction.
+        </small>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-6">
+    <div class="custom-card h-100 mb-0">
+      <div class="custom-card-header">
+        <h6 class="custom-card-title"><i class="bi bi-cpu text-info"></i> Module 4: MLP Neural Network Architecture</h6>
+      </div>
+      <div class="custom-card-body">
+        <div class="p-3 bg-light rounded border mb-3">
+          <h6 class="fw-bold mb-2">Multi-Layer Perceptron (MLP) Specifications</h6>
+          <ul class="small text-muted mb-0">
+            <li><strong>Input Layer:</strong> 9 Normalized Features (StandardScaler scaled)</li>
+            <li><strong>Hidden Layer 1:</strong> 64 Neurons, ReLU Activation function</li>
+            <li><strong>Hidden Layer 2:</strong> 32 Neurons, ReLU Activation function</li>
+            <li><strong>Output Layer:</strong> 3 Neurons with Softmax cross-entropy (High, Medium, Low Risk)</li>
+            <li><strong>Optimizer:</strong> Adam ($\alpha = 0.005$) with backpropagation</li>
+            <li><strong>Overfitting Control:</strong> Early stopping with validation split and L2 penalty weight regularization</li>
+          </ul>
+        </div>
+        <p class="small text-muted mb-0">
+          Neural network reaches <strong>{{ metrics['models']['MLP Neural Network']['accuracy'] }}% accuracy</strong> with strong generalization, demonstrating effective application of Module 4 deep learning concepts on educational continuous evaluation data.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

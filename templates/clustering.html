@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block page_title %}Unsupervised Learning: K-Means Clustering & Student Segmentation (Module 3){% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4">
+  <!-- Cluster Overview Banner -->
+  <div class="col-12">
+    <div class="alert alert-primary d-flex align-items-center justify-content-between shadow-sm">
+      <div class="d-flex align-items-center gap-3">
+        <i class="bi bi-diagram-3-fill fs-2"></i>
+        <div>
+          <h6 class="fw-bold mb-1">Module 3 Concept Applied: K-Means Clustering & The Elbow Method</h6>
+          <small>
+            Grouping 500 anonymized student profiles into natural clusters based on academic habits and evaluation metrics without initial human labels.
+          </small>
+        </div>
+      </div>
+      <span class="badge bg-primary px-3 py-2">Optimal k = 3</span>
+    </div>
+  </div>
+
+  <!-- Cluster Metric Cards -->
+  {% for label, c in metrics['clusters'].items() %}
+  <div class="col-12 col-md-4">
+    <div class="custom-card h-100 mb-0">
+      <div class="custom-card-header">
+        <h6 class="custom-card-title small {% if 'High' in label %}text-success{% elif 'Moderate' in label %}text-warning{% else %}text-danger{% endif %}">
+          <i class="bi {% if 'High' in label %}bi-check-circle-fill{% elif 'Moderate' in label %}bi-dash-circle-fill{% else %}bi-exclamation-triangle-fill{% endif %}"></i>
+          {{ label }}
+        </h6>
+        <span class="badge bg-secondary">{{ c['count'] }} Students</span>
+      </div>
+      <div class="custom-card-body">
+        <ul class="list-unstyled mb-0">
+          <li class="d-flex justify-content-between py-1 border-bottom">
+            <span class="text-muted small">Mean Attendance:</span>
+            <strong>{{ c['avg_attendance'] }}%</strong>
+          </li>
+          <li class="d-flex justify-content-between py-1 border-bottom">
+            <span class="text-muted small">Mean Internal Marks:</span>
+            <strong>{{ c['avg_internal_marks'] }} / 50</strong>
+          </li>
+          <li class="d-flex justify-content-between py-1 border-bottom">
+            <span class="text-muted small">Mean Cumulative GPA:</span>
+            <strong>{{ c['avg_past_gpa'] }} / 10.0</strong>
+          </li>
+          <li class="d-flex justify-content-between py-1">
+            <span class="text-muted small">Mean Study Hours:</span>
+            <strong>{{ c['avg_study_hours'] }} hrs/wk</strong>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Visual Evidence & Plots Row -->
+<div class="row g-4 mb-4">
+  <!-- Elbow Curve Plot -->
+  <div class="col-12 col-lg-6">
+    <div class="custom-card h-100 mb-0">
+      <div class="custom-card-header">
+        <h6 class="custom-card-title"><i class="bi bi-graph-down text-primary"></i> Elbow Method for Optimal k</h6>
+        <span class="badge bg-light text-dark border">Inertia Curve</span>
+      </div>
+      <div class="custom-card-body text-center">
+        <img src="{{ url_for('static', filename='plots/elbow_method.png') }}" class="img-fluid rounded border shadow-sm mb-3" alt="Elbow Method Curve">
+        <p class="text-muted small text-start mb-0">
+          <strong>Mathematical Justification:</strong> The Within-Cluster Sum of Squares (Inertia) was evaluated for $k \in [2, 8]$. The distinctive "elbow" inflection occurs at <strong>$k = 3$</strong>, beyond which marginal variance reduction diminishes.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- K-Means Scatter Visualization -->
+  <div class="col-12 col-lg-6">
+    <div class="custom-card h-100 mb-0">
+      <div class="custom-card-header">
+        <h6 class="custom-card-title"><i class="bi bi-scatter text-success"></i> 2D Cluster Feature Space</h6>
+        <span class="badge bg-light text-dark border">Attendance vs Internal</span>
+      </div>
+      <div class="custom-card-body text-center">
+        <img src="{{ url_for('static', filename='plots/kmeans_clusters.png') }}" class="img-fluid rounded border shadow-sm mb-3" alt="K-Means Clusters Scatter">
+        <p class="text-muted small text-start mb-0">
+          <strong>Pedagogical Insight:</strong> Visual separation confirms distinct behavioral zones: Low attendance coupled with sub-25 internal scores clearly isolates the At-Risk cohort for targeted remedial intervention.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Mentor Intervention Guide by Cluster -->
+<div class="custom-card mb-0">
+  <div class="custom-card-header">
+    <h6 class="custom-card-title"><i class="bi bi-mortarboard-fill text-primary"></i> Differentiated Teacher & Mentor Action Strategy</h6>
+  </div>
+  <div class="custom-card-body">
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="p-3 bg-light rounded border-start border-4 border-success">
+          <h6 class="fw-bold text-success mb-2">High Performers Group</h6>
+          <p class="small text-muted mb-2">Self-motivated, high attendance (>78%), and high internal marks.</p>
+          <ul class="small ps-3 text-muted mb-0">
+            <li>Encourage competitive coding and research papers.</li>
+            <li>Assign leadership roles in collaborative group assignments.</li>
+            <li>Guidance for GATE / GRE / Industry internships.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="p-3 bg-light rounded border-start border-4 border-warning">
+          <h6 class="fw-bold text-warning mb-2">Moderate Performers Group</h6>
+          <p class="small text-muted mb-2">Capable students with periodic slips in attendance or quiz scores.</p>
+          <ul class="small ps-3 text-muted mb-0">
+            <li>Structured weekly assignment deadlines.</li>
+            <li>Peer study buddies to reinforce challenging syllabus modules.</li>
+            <li>Mid-semester check-in before final university examinations.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="p-3 bg-light rounded border-start border-4 border-danger">
+          <h6 class="fw-bold text-danger mb-2">At-Risk Segment</h6>
+          <p class="small text-muted mb-2">High detention risk with critical gaps across multiple subjects.</p>
+          <ul class="small ps-3 text-muted mb-0">
+            <li>Immediate mentor counseling and parent notification.</li>
+            <li>Mandatory remedial / tutorial sessions.</li>
+            <li>Daily attendance tracking and milestone monitoring.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

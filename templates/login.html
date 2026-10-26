@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login | Student Performance Prediction Platform — NIET</title>
+  
+  <!-- Bootstrap 5.3 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <style>
+    body {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #1e3a8a 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    .login-container {
+      max-width: 950px;
+      width: 100%;
+      background: #ffffff;
+      border-radius: 1.25rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+      overflow: hidden;
+    }
+    .login-sidebar {
+      background: linear-gradient(160deg, #1d4ed8 0%, #1e40af 100%);
+      color: #ffffff;
+      padding: 3rem 2.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .login-form-area {
+      padding: 3rem 2.5rem;
+    }
+    .demo-pill {
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px dashed #cbd5e1;
+      padding: 0.65rem 0.85rem;
+      border-radius: 0.5rem;
+      background: #f8fafc;
+    }
+    .demo-pill:hover {
+      background: #eff6ff;
+      border-color: #3b82f6;
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-container">
+    <div class="row g-0">
+      
+      <!-- Brand & Project Info Column -->
+      <div class="col-12 col-md-5 login-sidebar">
+        <div>
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <div class="bg-white text-primary rounded p-2 d-flex align-items-center justify-content-center shadow-sm" style="width: 42px; height: 42px;">
+              <i class="bi bi-mortarboard-fill fs-4"></i>
+            </div>
+            <div>
+              <h5 class="m-0 fw-bold">EduPredict AI</h5>
+              <small class="text-light opacity-75">NIET Greater Noida</small>
+            </div>
+          </div>
+
+          <h4 class="fw-bold mt-4 mb-3">Student Performance Prediction Platform</h4>
+          <p class="text-light opacity-90 small mb-4">
+            AI-driven Early Warning and Diagnostic System for academic intervention, continuous evaluation tracking, and performance forecasting.
+          </p>
+
+          <div class="p-3 bg-white bg-opacity-10 rounded-3 mb-4">
+            <div class="small fw-semibold mb-1"><i class="bi bi-shield-check text-warning me-1"></i> Continuous Academic Evaluation</div>
+            <small class="d-block text-light opacity-80">Machine Learning & Neural Network Diagnostics</small>
+            <small class="d-block text-light opacity-80">SDG 4: Quality Education Platform</small>
+          </div>
+        </div>
+
+        <div class="border-top border-white border-opacity-25 pt-3">
+          <small class="text-light opacity-75" style="font-size: 0.78rem;">
+            Empowering faculty mentors and students with real-time academic risk analytics.
+          </small>
+        </div>
+      </div>
+
+      <!-- Login Form Column -->
+      <div class="col-12 col-md-7 login-form-area">
+        <div class="mb-4">
+          <h3 class="fw-bold text-dark">Portal Sign In</h3>
+          <p class="text-muted small">Select your role or enter credentials to access role-based dashboards.</p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }} alert-dismissible fade show small" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <!-- Quick 1-Click Demo Login Selection -->
+        <div class="mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <label class="form-label small fw-bold text-muted text-uppercase mb-0">1-Click Quick Demo Sign In</label>
+            <span class="badge bg-primary bg-opacity-10 text-primary">Pre-configured Demo Users</span>
+          </div>
+          <div class="d-flex flex-column gap-2">
+            
+            <div class="demo-pill d-flex justify-content-between align-items-center" onclick="fillAndSubmit('amit', 'password123')">
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-person-badge-fill text-primary fs-4"></i>
+                <div>
+                  <div class="fw-bold small text-dark">Amit Yadav (Faculty Mentor)</div>
+                  <small class="text-muted font-monospace" style="font-size: 0.75rem;">Username: amit | Pass: password123</small>
+                </div>
+              </div>
+              <span class="badge bg-primary">Login as Amit &rarr;</span>
+            </div>
+
+            <div class="demo-pill d-flex justify-content-between align-items-center" onclick="fillAndSubmit('muskan', 'password123')">
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-mortarboard-fill text-success fs-4"></i>
+                <div>
+                  <div class="fw-bold small text-dark">Muskan Gola (Student User)</div>
+                  <small class="text-muted font-monospace" style="font-size: 0.75rem;">Username: muskan (Roll: 2501330100232) | Pass: password123</small>
+                </div>
+              </div>
+              <span class="badge bg-success">Login as Muskan &rarr;</span>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <hr class="flex-grow-1">
+          <span class="text-muted small">or sign in with email / username</span>
+          <hr class="flex-grow-1">
+        </div>
+
+        <!-- Manual Login Form -->
+        <form method="POST" action="{{ url_for('login') }}" id="loginForm">
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Email or Username</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light"><i class="bi bi-person text-muted"></i></span>
+              <input type="text" name="email" id="email" class="form-control" placeholder="e.g. amit or muskan or your registered email" required>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Password</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light"><i class="bi bi-lock text-muted"></i></span>
+              <input type="password" name="password" id="password" class="form-control" placeholder="••••••••" required>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold shadow-sm mb-3">
+            <i class="bi bi-box-arrow-in-right me-1"></i> Sign In to Dashboard
+          </button>
+        </form>
+
+        <!-- New User Registration Option -->
+        <div class="p-3 bg-light rounded text-center border">
+          <span class="small text-muted d-block mb-2">New faculty member or student joining the platform?</span>
+          <a href="{{ url_for('register') }}" class="btn btn-outline-primary btn-sm px-3 fw-semibold">
+            <i class="bi bi-person-plus-fill me-1"></i> Register as New User (Faculty or Student)
+          </a>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Bootstrap Bundle JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    function fillAndSubmit(email, pass) {
+      document.getElementById('email').value = email;
+      document.getElementById('password').value = pass;
+      document.getElementById('loginForm').submit();
+    }
+  </script>
+</body>
+</html>

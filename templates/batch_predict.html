@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block page_title %}Batch CSV Prediction & Class Processor{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <!-- Upload Panel -->
+  <div class="col-12 col-lg-4">
+    <div class="custom-card mb-4">
+      <div class="custom-card-header">
+        <h6 class="custom-card-title"><i class="bi bi-upload text-primary"></i> Upload Class Roster (CSV)</h6>
+      </div>
+      <div class="custom-card-body">
+        <form method="POST" action="{{ url_for('batch_predict') }}" enctype="multipart/form-data">
+          <div class="mb-3">
+            <label class="form-label small text-muted">Select CSV Spreadsheet</label>
+            <input type="file" name="csv_file" class="form-control" accept=".csv" required>
+            <div class="form-text small mt-2">
+              File must contain required columns: <code>attendance, internal_marks, assignment_rate, study_hours, class_test_marks, past_gpa</code>.
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100 py-2 shadow-sm mb-3">
+            <i class="bi bi-gear-fill me-1"></i> Run Batch Prediction
+          </button>
+        </form>
+
+        <hr>
+
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="small text-muted">Need a formatted template?</span>
+          <a href="{{ url_for('download_sample_template') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-download"></i> Sample CSV
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Instructions Card -->
+    <div class="custom-card">
+      <div class="custom-card-header">
+        <h6 class="custom-card-title small"><i class="bi bi-info-circle text-info"></i> Batch Pipeline Specs</h6>
+      </div>
+      <div class="custom-card-body small text-muted">
+        <p>• Automated standard scaling applied uniformly to all uploaded records.</p>
+        <p>• Scored against trained <strong>Random Forest Ensemble (Module 3)</strong> and partitioned into <strong>K-Means Clusters</strong>.</p>
+        <p class="mb-0">• Exports diagnostic confidence and risk flags for mentor tracking.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Panel -->
+  <div class="col-12 col-lg-8">
+    {% if summary %}
+      <!-- Summary KPI Row -->
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+          <div class="stat-card p-3">
+            <small class="stat-label">Batch Size</small>
+            <div class="fs-4 fw-bold">{{ summary['total'] }}</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="stat-card p-3">
+            <small class="stat-label text-danger">High Risk</small>
+            <div class="fs-4 fw-bold text-danger">{{ summary['high_risk'] }}</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="stat-card p-3">
+            <small class="stat-label text-warning">Medium Risk</small>
+            <div class="fs-4 fw-bold text-warning">{{ summary['med_risk'] }}</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="stat-card p-3">
+            <small class="stat-label text-success">Low Risk</small>
+            <div class="fs-4 fw-bold text-success">{{ summary['low_risk'] }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preview Table -->
+      <div class="custom-card">
+        <div class="custom-card-header">
+          <h6 class="custom-card-title"><i class="bi bi-check2-circle text-success"></i> Batch Inference Results</h6>
+          <span class="badge bg-success">First 50 Rows Displayed</span>
+        </div>
+        <div class="custom-card-body p-0">
+          <div class="table-responsive">
+            <table class="table custom-table mb-0">
+              <thead>
+                <tr>
+                  <th>Row</th>
+                  <th>Attendance</th>
+                  <th>Internal</th>
+                  <th>Past GPA</th>
+                  <th>Predicted Risk</th>
+                  <th>Confidence</th>
+                  <th>Cluster</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for r in batch_results %}
+                <tr>
+                  <td class="text-muted small">{{ loop.index }}</td>
+                  <td>{{ r['attendance'] }}%</td>
+                  <td>{{ r['internal_marks'] }}</td>
+                  <td>{{ r['past_gpa'] }}</td>
+                  <td>
+                    {% if r['predicted_risk'] == 'High Risk' %}
+                      <span class="badge-risk-high">High Risk</span>
+                    {% elif r['predicted_risk'] == 'Medium Risk' %}
+                      <span class="badge-risk-med">Medium Risk</span>
+                    {% else %}
+                      <span class="badge-risk-low">Low Risk</span>
+                    {% endif %}
+                  </td>
+                  <td><strong>{{ r['confidence'] }}%</strong></td>
+                  <td><small class="text-muted">{{ r['cluster_segment'] }}</small></td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    {% else %}
+      <div class="custom-card text-center p-5">
+        <div class="py-5">
+          <i class="bi bi-file-earmark-spreadsheet text-muted" style="font-size: 3.5rem;"></i>
+          <h5 class="fw-bold mt-3">Upload Class Data to Begin</h5>
+          <p class="text-muted mx-auto" style="max-width: 420px;">
+            Upload mid-term student records in bulk to screen an entire cohort simultaneously for at-risk triggers and early intervention allocation.
+          </p>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
